@@ -1,0 +1,11 @@
+{
+    "name": "ramar/lib/io",
+    "dependencies": {
+        "disk": {
+            "ramar/lib/iter": "DR_iter.jar",
+            "ramar/lib/utils": "DR_rutils.jar",
+            "ramar/lib/json": "DR_json.jar",
+            "ramar/lib/test": "DR_test.jar"
+        }
+    }
+}
