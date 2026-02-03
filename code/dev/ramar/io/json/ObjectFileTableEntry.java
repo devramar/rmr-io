@@ -10,9 +10,9 @@ import dev.ramar.utils.Lock;
 import dev.ramar.json.JObject;
 import dev.ramar.json.JITJObject;
 
-import dev.ramar.io.BaseFileTable;
+import dev.ramar.io.FileTable;
 
-public class ObjectFileTableEntry extends BaseFileTable
+public class ObjectFileTableEntry extends FileTable<JObject>
 {
 
     public ObjectFileTableEntry(Path tableRoot, String fileName)

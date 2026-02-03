@@ -10,9 +10,9 @@ import dev.ramar.utils.TimeSpan;
 import dev.ramar.json.JArray;
 import dev.ramar.json.JITJArray;
 
-import dev.ramar.io.BaseFileTable;
+import dev.ramar.io.FileTable;
 
-public class ArrayFileTableEntry extends BaseFileTable
+public class ArrayFileTableEntry extends FileTable<JArray>
 {
 
     public ArrayFileTableEntry(Path tableRoot, String fileName)
@@ -27,6 +27,7 @@ public class ArrayFileTableEntry extends BaseFileTable
 
 
 
+    @Override
     public JArray load(long id)
     {
         try(var lck = this.lock.use())
@@ -35,6 +36,8 @@ public class ArrayFileTableEntry extends BaseFileTable
         }
     }
 
+
+    @Override
     public void save(long id, JArray item) throws IOException
     {
         try(var lck = this.lock.use())

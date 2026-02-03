@@ -4,21 +4,22 @@ import java.nio.file.Files;
 
 import dev.ramar.utils.Lock;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
-public class BaseFileTable
+public abstract class FileTable<T>
 {
     public final Lock lock;
 
     private final String fileName;
     private final Path tableRoot;
 
-    public BaseFileTable(Path tableRoot, String fileName)
+    public FileTable(Path tableRoot, String fileName)
     {
         this(new Lock(), tableRoot, fileName);
     }
 
-    public BaseFileTable(Lock lock, Path tableRoot, String fileName)
+    public FileTable(Lock lock, Path tableRoot, String fileName)
     {
         this.fileName = fileName;
         this.tableRoot = tableRoot;
@@ -38,6 +39,28 @@ public class BaseFileTable
     protected Path pathFor(long id, Object... subpaths)
     {
         return Resolve(this.rootFor(id), subpaths);
+    }
+
+
+    /* FileTable I/O
+    --===---------------
+    */
+
+    public abstract T load(long id);
+    public abstract void save(long id, T item) throws IOException;
+
+
+    public boolean trySave(long id, T item)
+    {
+        try
+        {
+            this.save(id, item);
+            return true;
+        }
+        catch(IOException ex)
+        {
+            return false;
+        }
     }
 
 
