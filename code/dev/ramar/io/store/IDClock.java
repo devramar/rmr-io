@@ -1,24 +1,30 @@
+package dev.ramar.io.store;
 
-/// -=== IDClock ======================================================================
-/// Monotonic (clamped) wall-clock millis provider.
-/// Persists lastTimestampMillis to disk (implementation deferred).
+import dev.ramar.io.AtomicOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+/// GPT-Made
 public class IDClock
 {
 
+    // -=== Fields ====================================================================
+    private final Path clockPath;
 
-    final Path clockPath;
+    private volatile long lastTimestampMillis;
 
-
-    volatile long lastTimestampMillis;
-
-
-    public IDClock(Path clockPath)
+    // -=== Ctor ======================================================================
+    public IDClock(Path clockPath) throws IOException
     {
         this.clockPath = clockPath;
-        this.lastTimestampMillis = 0;
+
+        this.lastTimestampMillis = this.tryLoadLastTimestampMillis(clockPath);
     }
 
-
+    // -=== Public ====================================================================
     public long nowClampedMillis() throws IOException
     {
         long now = System.currentTimeMillis();
@@ -33,12 +39,42 @@ public class IDClock
         {
             this.lastTimestampMillis = ts;
 
-            /// TODO:
-            /// persist ts to clockPath using AtomicOutputStream (binary long)
+            this.persistLastTimestampMillis(ts);
         }
 
         return ts;
     }
 
+    // -=== Persistence ===============================================================
+    private long tryLoadLastTimestampMillis(Path path) throws IOException
+    {
+        if(!Files.exists(path))
+            return 0;
+
+        byte[] buf = Files.readAllBytes(path);
+        if(buf.length < 8)
+            return 0;
+
+        return ByteBuffer.wrap(buf)
+            .order(ByteOrder.BIG_ENDIAN)
+            .getLong()
+        ;
+    }
+
+    private void persistLastTimestampMillis(long ts) throws IOException
+    {
+        Files.createDirectories(this.clockPath.getParent());
+
+        try(var aos = AtomicOutputStream.Open(this.clockPath))
+        {
+            ByteBuffer bb = ByteBuffer.allocate(8)
+                .order(ByteOrder.BIG_ENDIAN)
+            ;
+
+            bb.putLong(ts);
+
+            aos.write(bb.array());
+        }
+    }
 
 }

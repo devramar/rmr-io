@@ -1,7 +1,7 @@
 package test.ramar.io;
 
-import dev.ramar.io.json.ArrayFileTableEntry;
-import dev.ramar.io.json.ObjectFileTableEntry;
+import dev.ramar.io.entry.json.ArrayFileTableEntry;
+import dev.ramar.io.entry.json.ObjectFileTableEntry;
 import dev.ramar.json.JToken;
 import dev.ramar.json.JObject;
 import dev.ramar.json.JArray;

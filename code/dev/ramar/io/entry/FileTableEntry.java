@@ -1,4 +1,4 @@
-package dev.ramar.io;
+package dev.ramar.io.entry;
 
 import java.nio.file.Files;
 

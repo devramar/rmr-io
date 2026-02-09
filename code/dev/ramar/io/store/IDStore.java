@@ -1,23 +1,28 @@
-/// -=== IDStore ======================================================================
-/// Persists ids via:
-/// - snapshot (binary) for fast startup
-/// - append-only journal (binary) for cheap updates
-///
-/// Startup contract:
-/// - loadSnapshot into IDIndex
-/// - replayJournal into IDIndex
+package dev.ramar.io.store;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+
+import dev.ramar.io.store.journalling.Journal;
+import dev.ramar.io.store.journalling.V1Journal;
+
+import dev.ramar.io.store.snapshotting.Snapshot;
+
+/// GPT-Made
 public class IDStore
 {
 
+    // -=== Fields ====================================================================
+    private final Path snapshotPath;
+    private final Path journalPath;
 
-    final Path snapshotPath;
-    final Path journalPath;
+    private long journalEntries;
 
-
-    /// maintained during replay / append (implementation deferred)
-    long journalEntries;
-
-
+    // -=== Ctor ======================================================================
     public IDStore(Path snapshotPath, Path journalPath)
     {
         this.snapshotPath = snapshotPath;
@@ -26,7 +31,7 @@ public class IDStore
         this.journalEntries = 0;
     }
 
-
+    // -=== Startup ===================================================================
     public void startup(IDIndex index) throws IOException
     {
         this.loadSnapshot(index);
@@ -34,61 +39,83 @@ public class IDStore
         this.replayJournal(index);
     }
 
-
+    // -=== Append ====================================================================
     public void appendAdd(long id) throws IOException
     {
-        /// TODO:
-        /// binary append:
-        ///  byte 0x01
-        ///  long id (big-endian)
-        /// increment journalEntries
+        Journal.Append(this.journalPath, 1, new Journal.JournalEntry(V1Journal.OP_ADD, id));
+        this.journalEntries++;
     }
-
 
     public void appendRemove(long id) throws IOException
     {
-        /// TODO:
-        /// binary append:
-        ///  byte 0x02
-        ///  long id (big-endian)
-        /// increment journalEntries
+        Journal.Append(this.journalPath, 1, new Journal.JournalEntry(V1Journal.OP_REMOVE, id));
+        this.journalEntries++;
     }
 
-
+    // -=== Compaction ================================================================
     public boolean shouldCompact()
     {
         return this.journalEntries > 250_000;
     }
 
-
     public void compactFromIndex(IDIndex index) throws IOException
     {
-        /// TODO:
-        /// 1) write new snapshot (sorted ids) using AtomicOutputStream
-        /// 2) replace snapshot
-        /// 3) reset journal (truncate / replace empty) and set journalEntries=0
+        Snapshot.Write(this.snapshotPath, 1, index.snapshot());
+
+        this.resetJournal();
     }
 
-
-    void loadSnapshot(IDIndex index) throws IOException
+    private void resetJournal() throws IOException
     {
-        /// TODO:
-        /// if snapshotPath exists:
-        ///  read binary ids
-        ///  index.add(id)
+        OpenOption[] options = Files.exists(this.journalPath)
+            ? new OpenOption[] { StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE }
+            : new OpenOption[] { StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE }
+        ;
+        
+        try(var os = Files.newOutputStream(this.journalPath, options))
+        {
+            DataOutputStream dos = new DataOutputStream(os);
+
+            dos.writeInt(Journal.MAGIC);
+            dos.writeByte(1);
+        }
+        finally
+        {
+            if( os != null )
+                os.close();
+        }
+
+        this.journalEntries = 0;
     }
 
-
-    void replayJournal(IDIndex index) throws IOException
+    // -=== Snapshot ==================================================================
+    private void loadSnapshot(IDIndex index) throws IOException
     {
-        /// TODO:
-        /// if journalPath exists:
-        ///  read entries in order
-        ///  op 0x01 => index.add(id)
-        ///  op 0x02 => index.remove(id)
-        ///  stop cleanly on truncated tail
-        ///  set journalEntries to number of valid entries read
+        Snapshot.Read(this.snapshotPath, id ->
+        {
+            index.add(id);
+        });
     }
 
+    // -=== Journal ===================================================================
+    private void replayJournal(IDIndex index) throws IOException
+    {
+        this.journalEntries = Journal.Replay(this.journalPath, new Journal.JournalReplay()
+        {
+
+            @Override
+            public void onAdd(long id)
+            {
+                index.add(id);
+            }
+
+            @Override
+            public void onRemove(long id)
+            {
+                index.remove(id);
+            }
+
+        });
+    }
 
 }

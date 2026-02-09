@@ -1,40 +1,39 @@
 package dev.ramar.io.store;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.TreeSet;
+import java.util.stream.LongStream;
 
-import dev.ramar.utils.FileLock;
-
-/// -=== IDIndex ======================================================================
-/// In-memory known-id snapshot.
-/// Mutable only under TableStore lock (contract).
+/// GPT-Made
 public class IDIndex
 {
 
+    // -=== Fields ====================================================================
+    private final TreeSet<Long> ids = new TreeSet<>();
 
-    TreeSet<Long> ids = new TreeSet<>();
-
-
+    // -=== Mutation (Table lock only) ================================================
     public void add(long id)
-    { this.ids.add(id); }
+    {
+        this.ids.add(id);
+    }
 
     public void remove(long id)
-    { this.ids.remove(id); }
-
+    {
+        this.ids.remove(id);
+    }
 
     public boolean contains(long id)
-    { return this.ids.contains(id); }
-
+    {
+        return this.ids.contains(id);
+    }
 
     public int size()
-    { return this.ids.size(); }
+    {
+        return this.ids.size();
+    }
 
-
-
+    // -=== Snapshots =================================================================
     public long[] snapshotNatural()
     {
         long[] arr = new long[this.ids.size()];
@@ -48,7 +47,6 @@ public class IDIndex
 
         return arr;
     }
-
 
     public long[] snapshot(Comparator<Long> comparator)
     {
@@ -67,5 +65,11 @@ public class IDIndex
         return arr;
     }
 
+    public LongStream snapshot()
+    {
+        return this.ids.stream()
+            .mapToLong(x -> x)
+            ;
+    }
 
 }

@@ -1,19 +1,22 @@
 
+package dev.ramar.io.store;
+import dev.ramar.io.store.IDClock;
+import java.io.IOException;
+
 /// -=== IDAllocator ==================================================================
 /// Generates time-sortable 64-bit ids:
 /// - high bits: timestampMillis
 /// - low 4 bits: sequence (0..15)
+
+/// GPT-Made
 public class IDAllocator
 {
 
-
     final IDClock clock;
-
 
     long lastTimestampMillis;
 
     int sequence; /// 0..15
-
 
     public IDAllocator(IDClock clock)
     {
@@ -22,7 +25,6 @@ public class IDAllocator
         this.lastTimestampMillis = -1;
         this.sequence = 0;
     }
-
 
     public synchronized long newId() throws IOException
     {
@@ -55,6 +57,5 @@ public class IDAllocator
 
         return (ts << 4) | (this.sequence & 0x0F);
     }
-
 
 }

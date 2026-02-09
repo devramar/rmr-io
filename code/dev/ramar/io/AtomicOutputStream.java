@@ -1,5 +1,9 @@
 package dev.ramar.io;
 
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
@@ -68,7 +72,6 @@ public final class AtomicOutputStream extends OutputStream implements AutoClosea
     --===-------------------
     */
 
-
     private final Path targetPath;
     private final Path tempPath;
 
@@ -93,11 +96,6 @@ public final class AtomicOutputStream extends OutputStream implements AutoClosea
         this.fos = new FileOutputStream(this.tempPath.toFile(), false);
         this.channel = this.fos.getChannel();
     }
-
-
-
-
-
 
     public Path targetPath()
     {

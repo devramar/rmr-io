@@ -1,4 +1,4 @@
-package dev.ramar.io.json;
+package dev.ramar.io.entry.json;
 
 import java.io.IOException;
 
@@ -11,7 +11,7 @@ import dev.ramar.json.JToken;
 import dev.ramar.json.JObject;
 import dev.ramar.json.JITJObject;
 
-import dev.ramar.io.FileTableEntry;
+import dev.ramar.io.entry.FileTableEntry;
 
 public class ObjectFileTableEntry extends FileTableEntry<JObject>
 {

@@ -1,4 +1,4 @@
-package dev.ramar.io.json;
+package dev.ramar.io.entry.json;
 
 import java.io.IOException;
 
@@ -10,7 +10,7 @@ import dev.ramar.utils.TimeSpan;
 import dev.ramar.json.JArray;
 import dev.ramar.json.JITJArray;
 
-import dev.ramar.io.FileTableEntry;
+import dev.ramar.io.entry.FileTableEntry;
 
 public class ArrayFileTableEntry extends FileTableEntry<JArray>
 {
