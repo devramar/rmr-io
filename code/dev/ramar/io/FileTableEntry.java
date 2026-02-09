@@ -7,21 +7,22 @@ import dev.ramar.utils.Lock;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public abstract class FileTable<T>
+public abstract class FileTableEntry<T>
 {
     public final Lock lock;
 
-    private final String fileName;
-    private final Path tableRoot;
+    /// NOT including .json
+    public final String name;
+    public final Path tableRoot;
 
-    public FileTable(Path tableRoot, String fileName)
+    public FileTableEntry(Path tableRoot, String name)
     {
-        this(new Lock(), tableRoot, fileName);
+        this(new Lock(), tableRoot, name);
     }
 
-    public FileTable(Lock lock, Path tableRoot, String fileName)
+    public FileTableEntry(Lock lock, Path tableRoot, String name)
     {
-        this.fileName = fileName;
+        this.name = name;
         this.tableRoot = tableRoot;
         this.lock = lock;
     }
@@ -33,7 +34,7 @@ public abstract class FileTable<T>
 
     protected Path fileFor(long id)
     {
-        return this.rootFor(id).resolve(fileName);
+        return this.rootFor(id).resolve(name + ".json");
     }
 
     protected Path pathFor(long id, Object... subpaths)
@@ -42,7 +43,7 @@ public abstract class FileTable<T>
     }
 
 
-    /* FileTable I/O
+    /* FileTableEntry I/O
     --===---------------
     */
 
