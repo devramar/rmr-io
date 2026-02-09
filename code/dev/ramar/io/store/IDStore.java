@@ -79,11 +79,6 @@ public class IDStore
             dos.writeInt(Journal.MAGIC);
             dos.writeByte(1);
         }
-        finally
-        {
-            if( os != null )
-                os.close();
-        }
 
         this.journalEntries = 0;
     }

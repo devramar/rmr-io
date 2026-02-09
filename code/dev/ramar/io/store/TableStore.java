@@ -1,7 +1,8 @@
 package dev.ramar.io.store;
 
+import dev.ramar.utils.FileLock;
+
 import java.io.IOException;
-import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
