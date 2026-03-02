@@ -9,6 +9,40 @@ import java.nio.file.Path;
 
 public abstract class FileTableEntry<T>
 {
+
+    @FunctionalInterface
+    public interface Loader<T>
+    {
+        public T load(FileTableEntry<T> entry, long id);
+    }
+
+    @FunctionalInterface
+    public interface Saver<T>
+    {
+        public T save(FileTableEntry<T> entry, long id, T item);
+    }
+
+    /*
+    FileTableEntry.Build(root, name, this::loadJSON, this::saveJSON)
+    */
+    public static <T> FileTableEntry<T> Build(Path tableRoot, String name, Loader<T> loader, Saver<T> saver)
+    {
+        return new FileTableEntry<T>(tableRoot, name)
+        {
+            @Override
+            public T load(long id)
+            {
+                return loader.load(this, id);
+            }
+
+            @Override
+            public void save(long id, T item) throws IOException
+            {
+                saver.save(this, id, item);
+            }
+        };
+    }
+
     public final Lock lock;
 
     /// NOT including .json
@@ -91,4 +125,6 @@ public abstract class FileTableEntry<T>
 
         return normalizedResolved;
     }
+
+
 }

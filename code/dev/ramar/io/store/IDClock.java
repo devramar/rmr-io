@@ -12,7 +12,7 @@ public class IDClock
 {
 
     // -=== Fields ====================================================================
-    private final Path clockPath;
+    public final Path clockPath;
 
     private volatile long lastTimestampMillis;
 

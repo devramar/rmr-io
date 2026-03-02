@@ -63,6 +63,11 @@ public class ObjectFileTableEntry extends FileTableEntry<JObject>
         }
     }
 
+    public void delete(long id) throws IOException
+    {
+        this.save(id, null);
+    }
+    
     public void save(long id, JObject item) throws IOException
     {
         Path itemPath = this.fileFor(id);
@@ -71,6 +76,7 @@ public class ObjectFileTableEntry extends FileTableEntry<JObject>
             if( item == null || item.isEmpty() )
             {
                 Files.deleteIfExists(itemPath);
+                this.deleteIfEmpty(id);
                 return;
             }
             item.writeTo(itemPath); 
@@ -81,4 +87,20 @@ public class ObjectFileTableEntry extends FileTableEntry<JObject>
         }
     }
 
+    private void deleteIfEmpty(long id) throws IOException
+    {
+        try
+        {
+            Path root = this.rootFor(id);
+            if( !Files.exists(root) )
+                return;
+
+            if( Files.list(root).findFirst().isEmpty() )
+                Files.deleteIfExists(root);
+        }
+        catch(IOException ex)
+        {
+            throw new IOException("failed to delete empty root: " + ex.getMessage(), ex);
+        }
+    }
 }

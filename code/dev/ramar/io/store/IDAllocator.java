@@ -26,7 +26,7 @@ public class IDAllocator
         this.sequence = 0;
     }
 
-    public synchronized long newId() throws IOException
+    public synchronized long newID() throws IOException
     {
         long ts = this.clock.nowClampedMillis();
 

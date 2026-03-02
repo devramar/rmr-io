@@ -1,8 +1,10 @@
 package dev.ramar.io.store;
 
+
+import java.util.Set;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.TreeSet;
+import java.util.Comparator;
 import java.util.stream.LongStream;
 
 /// GPT-Made
@@ -31,6 +33,13 @@ public class IDIndex
     public int size()
     {
         return this.ids.size();
+    }
+
+    /// this is intended for READ ONLY ACCESS.
+    /// please do be very careful with this set.
+    public Set<Long> ids()
+    {
+        return this.ids;
     }
 
     // -=== Snapshots =================================================================

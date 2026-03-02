@@ -31,6 +31,8 @@ public class IDStore
         this.journalEntries = 0;
     }
 
+
+
     // -=== Startup ===================================================================
     public void startup(IDIndex index) throws IOException
     {

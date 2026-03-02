@@ -37,6 +37,12 @@ public class ArrayFileTableEntry extends FileTableEntry<JArray>
     }
 
 
+    public void delete(long id) throws IOException
+    {
+        this.save(id, null);
+    }
+    
+
     @Override
     public void save(long id, JArray item) throws IOException
     {
