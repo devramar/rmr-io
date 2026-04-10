@@ -1,4 +1,4 @@
-package dev.ramar.io;
+package dev.ramar.io.entry;
 
 import java.nio.file.Files;
 
@@ -7,21 +7,56 @@ import dev.ramar.utils.Lock;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public abstract class FileTable<T>
+public abstract class FileTableEntry<T>
 {
-    public final Lock lock;
 
-    private final String fileName;
-    private final Path tableRoot;
-
-    public FileTable(Path tableRoot, String fileName)
+    @FunctionalInterface
+    public interface Loader<T>
     {
-        this(new Lock(), tableRoot, fileName);
+        public T load(FileTableEntry<T> entry, long id);
     }
 
-    public FileTable(Lock lock, Path tableRoot, String fileName)
+    @FunctionalInterface
+    public interface Saver<T>
     {
-        this.fileName = fileName;
+        public T save(FileTableEntry<T> entry, long id, T item);
+    }
+
+    /*
+    FileTableEntry.Build(root, name, this::loadJSON, this::saveJSON)
+    */
+    public static <T> FileTableEntry<T> Build(Path tableRoot, String name, Loader<T> loader, Saver<T> saver)
+    {
+        return new FileTableEntry<T>(tableRoot, name)
+        {
+            @Override
+            public T load(long id)
+            {
+                return loader.load(this, id);
+            }
+
+            @Override
+            public void save(long id, T item) throws IOException
+            {
+                saver.save(this, id, item);
+            }
+        };
+    }
+
+    public final Lock lock;
+
+    /// NOT including .json
+    public final String name;
+    public final Path tableRoot;
+
+    public FileTableEntry(Path tableRoot, String name)
+    {
+        this(new Lock(), tableRoot, name);
+    }
+
+    public FileTableEntry(Lock lock, Path tableRoot, String name)
+    {
+        this.name = name;
         this.tableRoot = tableRoot;
         this.lock = lock;
     }
@@ -33,7 +68,7 @@ public abstract class FileTable<T>
 
     protected Path fileFor(long id)
     {
-        return this.rootFor(id).resolve(fileName);
+        return this.rootFor(id).resolve(name + ".json");
     }
 
     protected Path pathFor(long id, Object... subpaths)
@@ -42,7 +77,7 @@ public abstract class FileTable<T>
     }
 
 
-    /* FileTable I/O
+    /* FileTableEntry I/O
     --===---------------
     */
 
@@ -90,4 +125,6 @@ public abstract class FileTable<T>
 
         return normalizedResolved;
     }
+
+
 }

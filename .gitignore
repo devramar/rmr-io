@@ -1,5 +1,8 @@
+## JRunner ignores
 bin/
 env/
 build/
+dist/
 
 jrunner.cache
+.jrunner 

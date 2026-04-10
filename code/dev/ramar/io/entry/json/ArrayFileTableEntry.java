@@ -1,4 +1,4 @@
-package dev.ramar.io.json;
+package dev.ramar.io.entry.json;
 
 import java.io.IOException;
 
@@ -10,19 +10,19 @@ import dev.ramar.utils.TimeSpan;
 import dev.ramar.json.JArray;
 import dev.ramar.json.JITJArray;
 
-import dev.ramar.io.FileTable;
+import dev.ramar.io.entry.FileTableEntry;
 
-public class ArrayFileTableEntry extends FileTable<JArray>
+public class ArrayFileTableEntry extends FileTableEntry<JArray>
 {
 
-    public ArrayFileTableEntry(Path tableRoot, String fileName)
+    public ArrayFileTableEntry(Path tableRoot, String name)
     {
-        super(tableRoot, fileName);
+        super(tableRoot, name);
     }
 
-    public ArrayFileTableEntry(Lock lock, Path tableRoot, String fileName)
+    public ArrayFileTableEntry(Lock lock, Path tableRoot, String name)
     {
-        super(lock, tableRoot, fileName);
+        super(lock, tableRoot, name);
     }
 
 
@@ -36,6 +36,12 @@ public class ArrayFileTableEntry extends FileTable<JArray>
         }
     }
 
+
+    public void delete(long id) throws IOException
+    {
+        this.save(id, null);
+    }
+    
 
     @Override
     public void save(long id, JArray item) throws IOException
