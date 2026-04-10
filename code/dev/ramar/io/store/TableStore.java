@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import java.util.Optional;
+
 /// GPT-Made
 /// entry-point for table storage of entries.
 /// the strategy:
@@ -87,6 +89,33 @@ public class TableStore
     }
 
     // -=== ID Management =============================================================
+
+    public Optional<IOException> tryAdd(long id)
+    {
+        try
+        {
+            this.add(id);
+            return Optional.empty();
+        }
+        catch(IOException ex)
+        {
+            return Optional.of(ex);
+        }
+    }
+    public void add(long id) throws IOException
+    {
+        if( this.contains(id) ) 
+            return;
+
+        try(var lck = this.lockTable())
+        {
+            this.index.add(id);
+            this.idStore.appendAdd(id);
+
+            if( this.idStore.shouldCompact() )
+                this.idStore.compactFromIndex(this.index);
+        }
+    }
 
     public long generateID() throws IOException
     {
