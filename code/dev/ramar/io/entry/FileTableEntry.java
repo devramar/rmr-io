@@ -45,18 +45,17 @@ public abstract class FileTableEntry<T>
 
     public final Lock lock;
 
-    /// NOT including .json
-    public final String name;
+    public final String fileName;
     public final Path tableRoot;
 
-    public FileTableEntry(Path tableRoot, String name)
+    public FileTableEntry(Path tableRoot, String fileName)
     {
-        this(new Lock(), tableRoot, name);
+        this(new Lock(), tableRoot, fileName);
     }
 
-    public FileTableEntry(Lock lock, Path tableRoot, String name)
+    public FileTableEntry(Lock lock, Path tableRoot, String fileName)
     {
-        this.name = name;
+        this.fileName = fileName;
         this.tableRoot = tableRoot;
         this.lock = lock;
     }
@@ -68,7 +67,7 @@ public abstract class FileTableEntry<T>
 
     protected Path fileFor(long id)
     {
-        return this.rootFor(id).resolve(name + ".json");
+        return this.rootFor(id).resolve(fileName);
     }
 
     protected Path pathFor(long id, Object... subpaths)

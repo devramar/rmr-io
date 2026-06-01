@@ -13,6 +13,7 @@ import dev.ramar.json.JITJObject;
 
 import dev.ramar.io.entry.FileTableEntry;
 
+/// represents a JObject FileTableEntry
 public class ObjectFileTableEntry extends FileTableEntry<JObject>
 {
 
@@ -23,7 +24,7 @@ public class ObjectFileTableEntry extends FileTableEntry<JObject>
             return null;
 
         for(ObjectFileTableEntry child : children)
-            exp.with(child.name, child.load(id));
+            exp.with(child.fileName, child.load(id));
 
         return exp;
     }
@@ -40,19 +41,19 @@ public class ObjectFileTableEntry extends FileTableEntry<JObject>
 
         for(ObjectFileTableEntry child : children)
         {
-            JObject item = out.get(child.name).asObject();
+            JObject item = out.get(child.fileName).asObject();
             child.save(id, item);
         }
     }
 
-    public ObjectFileTableEntry(Path tableRoot, String name)
+    public ObjectFileTableEntry(Path tableRoot, String fileName)
     {
-        super(tableRoot, name);
+        super(tableRoot, fileName);
     }
 
-    public ObjectFileTableEntry(Lock lock, Path tableRoot, String name)
+    public ObjectFileTableEntry(Lock lock, Path tableRoot, String fileName)
     {
-        super(lock, tableRoot, name);
+        super(lock, tableRoot, fileName);
     }
 
     public JObject load(long id)

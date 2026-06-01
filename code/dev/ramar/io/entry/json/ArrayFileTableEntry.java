@@ -12,6 +12,7 @@ import dev.ramar.json.JITJArray;
 
 import dev.ramar.io.entry.FileTableEntry;
 
+/// represents a JArray FileTableEntry
 public class ArrayFileTableEntry extends FileTableEntry<JArray>
 {
 
