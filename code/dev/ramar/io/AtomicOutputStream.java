@@ -1,22 +1,22 @@
 package dev.ramar.io;
 
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.BufferedWriter;
 import java.io.FileOutputStream;
-
-import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.io.OutputStreamWriter;
 
 import java.nio.channels.FileChannel;
 
-import java.util.Objects;
+import java.nio.charset.StandardCharsets;
+
+import java.nio.file.Path;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.AtomicMoveNotSupportedException;
+
 import java.util.UUID;
+import java.util.Objects;
 
 public final class AtomicOutputStream extends OutputStream implements AutoCloseable
 {
@@ -26,21 +26,41 @@ public final class AtomicOutputStream extends OutputStream implements AutoClosea
 
     public static AtomicOutputStream Open(Path targetPath) throws IOException
     {
-        Path tempPath = targetPath.resolveSibling(targetPath.getFileName().toString() + ".tmp");
+        return AtomicOutputStream.Open(targetPath, ".tmp");
+    }
+
+    public static AtomicOutputStream Open(Path targetPath, String extension) throws IOException
+    {
+        extension = validateExtension(extension);
+
+        String fileName = targetPath.getFileName().toString();
+        Path tempPath = targetPath.resolveSibling(fileName + extension);
         return new AtomicOutputStream(targetPath, tempPath);
     }
 
     public static AtomicOutputStream OpenUnique(Path targetPath) throws IOException
     {
+        return AtomicOutputStream.OpenUnique(targetPath, ".tmp");
+    }
+
+    public static AtomicOutputStream OpenUnique(Path targetPath, String extension) throws IOException
+    {
+        extension = validateExtension(extension);
+
         String fileName = targetPath.getFileName().toString();
-        String suffix = ".tmp." + UUID.randomUUID().toString().replace("-", "");
+        String suffix = extension + "." + UUID.randomUUID().toString().replace("-", "");
         Path tempPath = targetPath.resolveSibling(fileName + suffix);
         return new AtomicOutputStream(targetPath, tempPath);
     }
 
     public static BufferedWriter OpenWriter(Path targetPath) throws IOException
     {
-        AtomicOutputStream aos = AtomicOutputStream.Open(targetPath);
+        return AtomicOutputStream.OpenWriter(targetPath, ".tmp");
+    }
+
+    public static BufferedWriter OpenWriter(Path targetPath, String extension) throws IOException
+    {
+        AtomicOutputStream aos = AtomicOutputStream.Open(targetPath, extension);
 
         try
         {
@@ -55,7 +75,12 @@ public final class AtomicOutputStream extends OutputStream implements AutoClosea
 
     public static BufferedWriter OpenUniqueWriter(Path targetPath) throws IOException
     {
-        AtomicOutputStream aos = AtomicOutputStream.OpenUnique(targetPath);
+        return AtomicOutputStream.OpenUniqueWriter(targetPath, ".tmp");
+    }
+
+    public static BufferedWriter OpenUniqueWriter(Path targetPath, String extension) throws IOException
+    {
+        AtomicOutputStream aos = AtomicOutputStream.OpenUnique(targetPath, extension);
 
         try
         {
@@ -66,6 +91,26 @@ public final class AtomicOutputStream extends OutputStream implements AutoClosea
             aos.abort();
             throw ex;
         }
+    }
+
+    private static String validateExtension(String extension)
+    {
+        Objects.requireNonNull(extension, "extension");
+
+        if( extension.length() < 2 || extension.charAt(0) != '.' )
+            throw new IllegalArgumentException("extension must begin with '.' and contain at least one character after it.");
+
+        for( int i = 1; i < extension.length(); i++ )
+        {
+            char c = extension.charAt(i);
+
+            if( Character.isLetterOrDigit(c) || c == '.' || c == '-' || c == '_' )
+                continue;
+
+            throw new IllegalArgumentException("extension contains an invalid character: " + c);
+        }
+
+        return extension;
     }
 
     /* Object Declaration
@@ -102,9 +147,14 @@ public final class AtomicOutputStream extends OutputStream implements AutoClosea
         return this.targetPath;
     }
 
-    public Path tempPath()
+    public Path temporaryPath()
     {
         return this.tempPath;
+    }
+
+    public Path tempPath()
+    {
+        return this.temporaryPath();
     }
 
     @Override

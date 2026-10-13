@@ -1,7 +1,7 @@
 package dev.ramar.io;
 
-import java.io.IOException;
 import java.io.Writer;
+import java.io.IOException;
 
 public final class AtomicWriter extends Writer
 {

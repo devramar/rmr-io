@@ -2,9 +2,6 @@
     "name": "ramar/lib/io",
     "dependencies": {
         "disk": [
-            "ramar/lib/iter",
-            "ramar/lib/utils",
-            "ramar/lib/json",
             "ramar/lib/test"
         ]
     }
